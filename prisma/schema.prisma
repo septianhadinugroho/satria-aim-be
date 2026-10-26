@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id              BigInt    @id @default(autoincrement())
+  name            String    @db.VarChar(255)
+  email           String    @unique @db.VarChar(255)
+  password        String    @db.VarChar(255)
+  personal_number String?   @db.VarChar(255)
+  is_blocked      Int       @default(0)
+  is_active       Int       @default(1)
+  created_at      DateTime? @db.DateTime
+  updated_at      DateTime? @db.DateTime
+
+  asset_taking_signatures asset_taking_signatures[]
+}
+
+model mst_asset {
+  id                  BigInt                @id(map: "PK_mst_asset_id") @default(autoincrement())
+  asset_num           String?               @db.NVarChar(255)
+  asset_desc          String?               @db.NVarChar(255)
+  asset_class         String?               @db.NVarChar(50)
+  asset_qty           Int?
+  sub_asset_num       String?               @db.NVarChar(32)
+  plant               String?               @db.NVarChar(64)
+  location            String?               @db.NVarChar(64)
+  company_code        String?               @db.NVarChar(32)
+  asset_taking_record asset_taking_record[]
+  asset_taking_schedules asset_taking_schedules[]
+}
+
+model asset_taking_schedules {
+  id                      BigInt                    @id(map: "PK_asset_taking_schedules") @default(autoincrement())
+  asset_id                BigInt?
+  period_year             Int?
+  period_month            Int?
+  status                  String?                   @db.VarChar(20)
+  is_carry_over           Int                       @default(0, map: "DF_asset_taking_schedules_is_carry_over")
+  created_at              DateTime                  @default(now(), map: "DF_asset_taking_schedules_created_at") @db.DateTime
+  updated_at              DateTime?                 @db.DateTime
+  pic                     BigInt?
+  asset_num               String?                   @db.NVarChar(255)
+  plant                   String?                   @db.NVarChar(64)
+  company_code            String?                   @db.NVarChar(32)
+  mst_asset               mst_asset?                @relation(fields: [asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  asset_taking_record     asset_taking_record[]
+  asset_taking_signatures asset_taking_signatures[]
+}
+
+model asset_taking_record {
+  id                     BigInt                  @id(map: "PK_asset_taking_record") @default(autoincrement())
+  asset_id               BigInt?
+  schedule_id            BigInt?
+  pic                    BigInt?
+  asset_condition        Int?
+  note                   String?                 @db.NVarChar(Max)
+  taken_at               DateTime?               @db.DateTime
+  created_at             DateTime                @default(now(), map: "DF_asset_taking_record_created_at") @db.DateTime
+  updated_at             DateTime?               @db.DateTime
+  image_url              String?                 @db.VarChar(255)
+  mst_asset              mst_asset?              @relation(fields: [asset_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  asset_taking_schedules asset_taking_schedules? @relation(fields: [schedule_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  asset_taking_image     asset_taking_image[]
+}
+
+model asset_taking_image {
+  id                  BigInt               @id(map: "PK_asset_taking_image") @default(autoincrement())
+  record_id           BigInt?
+  image_path          String?              @db.NVarChar(255)
+  uploaded_by         BigInt?
+  uploaded_at         DateTime             @default(now(), map: "DF_asset_taking_image_uploaded_at") @db.DateTime
+  asset_taking_record asset_taking_record? @relation(fields: [record_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model asset_taking_signatures {
+  id                      BigInt                 @id(map: "PK_asset_taking_signatures") @default(autoincrement())
+  schedule_id             BigInt
+  type                    String                 @db.VarChar(20)
+  role_title              String                 @db.VarChar(100)
+  user_id                 BigInt?
+  signer_name             String?                @db.NVarChar(255)
+  signer_nik              String?                @db.VarChar(50)
+  status                  String                 @default("PENDING") @db.VarChar(20)
+  signature_url           String?                @db.VarChar(255)
+  signed_at               DateTime?              @db.DateTime
+  notes                   String?                @db.NVarChar(Max)
+  created_at              DateTime               @default(now()) @db.DateTime
+  updated_at              DateTime?              @db.DateTime
+  asset_taking_schedules asset_taking_schedules @relation(fields: [schedule_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                   users?                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}

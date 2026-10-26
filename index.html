@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Laporan Hasil Pengecekan Aset (Asset Taking)</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; }
+    body { background-color: #525659; margin: 0; padding: 20px; color: #000; }
+    
+    .paper {
+      background: #ffffff;
+      width: 1000px;
+      margin: 0 auto;
+      padding: 35px 45px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      border: 1px solid #ccc;
+    }
+
+    .doc-header { text-align: center; margin-bottom: 25px; }
+    .doc-title { font-size: 18px; font-weight: bold; margin: 0; }
+    .doc-subtitle { font-size: 14px; font-weight: bold; margin: 5px 0 0 0; }
+    .doc-note { font-size: 11px; font-style: italic; color: #333; margin-top: 2px; }
+    .header-line { border-bottom: 2px solid #000; margin-top: 15px; margin-bottom: 20px; }
+
+    .intro-text, .outro-text { font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+    .intro-text p, .outro-text p { margin: 4px 0; }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 11px;
+    }
+    .report-table th, .report-table td {
+      border: 1px solid #000;
+      padding: 6px 4px;
+      text-align: center;
+      vertical-align: middle;
+      word-wrap: break-word;
+    }
+    .report-table th {
+      background-color: #bfbfbf;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .doc-box {
+      border: 1px solid #000;
+      padding: 12px;
+      margin-bottom: 20px;
+      min-height: 120px;
+    }
+    .doc-box-title { font-weight: bold; font-size: 12px; margin-bottom: 10px; }
+    .image-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; }
+    .doc-img { max-width: 280px; max-height: 180px; border: 1px solid #ddd; object-fit: cover; }
+
+    .sig-section-title { font-size: 13px; font-weight: bold; margin: 15px 0 6px 0; }
+    .sig-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 11px;
+      table-layout: fixed;
+    }
+    .sig-table th, .sig-table td {
+      border: 1px solid #000;
+      text-align: center;
+      vertical-align: top;
+      padding: 4px;
+    }
+    .sig-table th { background-color: #ffffff; font-weight: bold; height: 30px; }
+    .sig-cell {
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    /* Format Teks Digital Signature */
+    .digital-sig-badge {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0d6efd;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .digital-sig-time {
+      font-size: 9px;
+      color: #555;
+    }
+
+    .signer-name { font-size: 10px; font-weight: bold; margin-top: 4px; text-decoration: underline; }
+    .signer-nik { font-size: 9px; color: #555; }
+
+    /* Tombol Approve / Centang */
+    .btn-approve {
+      background-color: #198754;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-approve:hover { background-color: #157347; }
+    .btn-disabled {
+      background-color: #e0e0e0;
+      color: #888;
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      font-size: 10px;
+      border-radius: 4px;
+      cursor: not-allowed;
+    }
+
+    .dev-control {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #222;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .dev-control input { width: 80px; padding: 3px; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<div class="dev-control">
+  <label>Schedule ID: </label>
+  <input type="number" id="inputScheduleId" value="107939">
+  <button onclick="loadReportData()" style="cursor:pointer;">Load Report</button>
+</div>
+
+<div class="paper">
+  
+  <div class="doc-header">
+    <div class="doc-title">Form Laporan Hasil Pengecekan Aset atau <i>Asset Taking</i></div>
+    <div class="doc-subtitle">NO : <span id="docNoBa">002/UTE/IT/2026</span></div>
+    <div class="doc-note">(Nomor BA diisi oleh Masing-Masing Budget Owner)</div>
+  </div>
+
+  <div class="header-line"></div>
+
+  <div class="intro-text">
+    <p><b>Dengan Hormat</b></p>
+    <p>Pada tanggal <span id="docTanggal">03 Maret 2026</span> telah dilakukan <b>pengecekan aset/ asset taking</b> untuk area <span id="docPlant">Warehouse plant 1</span></p>
+    <p>Dengan ini kami sampaikan hasil pengecekan aset/asset taking dengan rincian sebagai berikut:</p>
+  </div>
+
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th style="width: 3%;">NO</th>
+        <th style="width: 10%;">NOMOR ASET</th>
+        <th style="width: 4%;">SUB</th>
+        <th style="width: 18%;">DESKRIPSI</th>
+        <th style="width: 4%;">QTY FISIK</th>
+        <th style="width: 4%;">QTY SAP</th>
+        <th style="width: 4%;">QTY DIFF</th>
+        <th style="width: 9%;">LOKASI ASET FISIK</th>
+        <th style="width: 9%;">LOKASI ASET SAP</th>
+        <th style="width: 9%;">KONDISI ASET</th>
+        <th style="width: 10%;">UTILISASI ASET</th>
+        <th style="width: 8%;">TEKNOLOGI ASET</th>
+        <th style="width: 8%;">LISENSI ASET</th>
+      </tr>
+    </thead>
+    <tbody id="itemsTableBody">
+      <tr><td colspan="13">Memuat data laporan...</td></tr>
+    </tbody>
+  </table>
+
+  <div class="doc-box">
+    <div class="doc-box-title">Dokumentasi :</div>
+    <div class="image-grid" id="imageGridContainer">
+      <span style="font-size: 11px; color: #777;">Tidak ada foto dokumentasi.</span>
+    </div>
+  </div>
+
+  <div class="outro-text">
+    <p>Demikian laporan ini kami buat, atas perhatian Bapak / Ibu kami mengucapkan terima kasih.</p>
+    <br>
+    <p><span id="docLocationDate">Cikarang, 03 Maret 2026</span></p>
+  </div>
+
+  <div class="sig-section-title">Created by,</div>
+  <table class="sig-table">
+    <thead>
+      <tr id="createdByHeader"></tr>
+    </thead>
+    <tbody>
+      <tr id="createdByBody"></tr>
+    </tbody>
+  </table>
+
+  <div class="sig-section-title">Acknowledged by,</div>
+  <table class="sig-table">
+    <thead>
+      <tr id="acknowledgedByHeader"></tr>
+    </thead>
+    <tbody>
+      <tr id="acknowledgedByBody"></tr>
+    </tbody>
+  </table>
+
+</div>
+
+<script>
+  const API_URL = 'https://98zth0wx-3000.asse.devtunnels.ms/api';
+
+  async function loadReportData() {
+    const scheduleId = document.getElementById('inputScheduleId').value;
+    try {
+      const response = await fetch(`${API_URL}/asset-taking/report/${scheduleId}`);
+      const result = await response.json();
+
+      if (!result.success) {
+        alert(result.message);
+        return;
+      }
+
+      const { header, items, signatures } = result.data;
+
+      document.getElementById('docNoBa').innerText = header.no_ba || '-';
+      document.getElementById('docPlant').innerText = header.plant || 'Plant';
+      document.getElementById('docTanggal').innerText = formatDate(header.tanggal);
+      document.getElementById('docLocationDate').innerText = `Cikarang, ${formatDate(header.tanggal)}`;
+
+      const tbody = document.getElementById('itemsTableBody');
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding:15px;">Belum ada hasil pengecekan fisik aset untuk schedule ini.</td></tr>`;
+      } else {
+        tbody.innerHTML = items.map((item, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.nomor_aset || '-'}</td>
+            <td>${item.sub_number || '-'}</td>
+            <td style="text-align: left;">${item.deskripsi || '-'}</td>
+            <td>${item.qty_fisik || 1}</td>
+            <td>${item.qty_sap || 1}</td>
+            <td>${item.qty_diff || 0}</td>
+            <td>${item.lokasi_aset_fisik || '-'}</td>
+            <td>${item.lokasi_aset_sap || '-'}</td>
+            <td>${item.kondisi_aset || '-'}</td>
+            <td>${item.utilisasi_aset || 'PAR'}</td>
+            <td>${item.teknologi_aset || 'Active'}</td>
+            <td>${item.lisensi_aset || 'Active'}</td>
+          </tr>
+        `).join('');
+      }
+
+      const imageContainer = document.getElementById('imageGridContainer');
+      const allImages = items.flatMap(item => item.images || []);
+      if (allImages.length === 0) {
+        imageContainer.innerHTML = `<span style="font-size: 11px; color: #777;">Tidak ada foto dokumentasi.</span>`;
+      } else {
+        imageContainer.innerHTML = allImages.map(imgUrl => `<img src="${imgUrl}" class="doc-img" alt="Foto Bukti">`).join('');
+      }
+
+      renderSignatureTable('createdByHeader', 'createdByBody', signatures.created_by);
+      renderSignatureTable('acknowledgedByHeader', 'acknowledgedByBody', signatures.acknowledged_by);
+
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengambil data laporan dari server API.');
+    }
+  }
+
+  function renderSignatureTable(headerId, bodyId, sigList) {
+    const headerRow = document.getElementById(headerId);
+    const bodyRow = document.getElementById(bodyId);
+
+    headerRow.innerHTML = sigList.map(sig => `<th>${sig.role}</th>`).join('');
+    bodyRow.innerHTML = sigList.map(sig => `
+      <td>
+        <div class="sig-cell">
+          ${sig.status === 'APPROVED' ? `
+            <div class="digital-sig-badge">Digital Signature</div>
+            <div class="digital-sig-time">${formatDateTime(sig.signed_at)}</div>
+            <div class="signer-name">${sig.signer_name || ''}</div>
+            <div class="signer-nik">${sig.signer_nik || ''}</div>
+          ` : sig.can_sign ? `
+            <button class="btn-approve" onclick="approveDigitalSignature(${sig.id}, '${sig.role}')">✔ Approve</button>
+          ` : `
+            <div class="btn-disabled">Menunggu Antrean</div>
+          `}
+        </div>
+      </td>
+    `).join('');
+  }
+
+  // Submit Digital Signature Sekuensial
+  async function approveDigitalSignature(sigId, roleTitle) {
+    const confirmApprove = confirm(`Apakah Anda yakin ingin menyetujui Digital Signature untuk posisi "${roleTitle}"?`);
+    if (!confirmApprove) return;
+
+    try {
+      const response = await fetch(`${API_URL}/asset-taking/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          signatureId: sigId,
+          signerName: "Septian Hadi Nugroho",
+          signerNik: "202609001"
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert('Digital Signature berhasil disetujui!');
+        loadReportData();
+      } else {
+        alert(result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal memproses Digital Signature.');
+    }
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '03 Maret 2026';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function formatDateTime(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + 
+           d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  loadReportData();
+</script>
+
+</body>
+</html>
